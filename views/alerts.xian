@@ -1,0 +1,628 @@
+﻿{{> head}}
+<body class="bg-[#060b14] min-h-screen">
+
+  <nav class="bg-[#0a1628]/90 backdrop-blur-xl border-b border-white/5 px-6 py-3 flex justify-between items-center sticky top-0 z-[500]">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center pulse-ring shadow-lg shadow-red-900/40">
+        <span class="text-base">🚨</span>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-white leading-none">Emergency Hotline</p>
+        <p class="text-xs text-slate-500 mt-0.5">Alert Control Panel</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+        <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse inline-block"></span>
+        {{ user }}
+      </span>
+      <a href="{{ dashboardLink }}" class="nav-btn">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="/map" class="nav-btn">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Live Map
+      </a>
+      <a href="/alerts/history" class="nav-btn">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        History
+      </a>
+      <a href="/logout" class="nav-btn-danger">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </a>
+    </div>
+  </nav>
+
+  <div class="max-w-[1400px] mx-auto px-5 py-5">
+
+    {{#if success_msg}}
+    <div class="mb-4 bg-green-950/50 border border-green-700/40 text-green-300 px-4 py-3 rounded-xl text-sm flex items-center gap-2 fade-in">
+      <span>✓</span> {{ success_msg }}
+    </div>
+    {{/if}}
+    {{#if error_msg}}
+    <div class="mb-4 bg-red-950/50 border border-red-700/40 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center gap-2 fade-in">
+      <span>!</span> {{ error_msg }}
+    </div>
+    {{/if}}
+
+    <div class="grid grid-cols-4 gap-3 mb-5">
+      <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-lg flex-shrink-0">📊</div>
+        <div><p class="text-2xl font-black text-white leading-none">{{ stats.total }}</p><p class="text-xs text-slate-500 mt-0.5">Total</p></div>
+      </div>
+      <div class="bg-[#0d1b2e] border border-red-500/10 rounded-2xl p-4 flex items-center gap-3 stat-glow-red">
+        <div class="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🔴</div>
+        <div><p class="text-2xl font-black text-red-400 leading-none">{{ stats.active }}</p><p class="text-xs text-slate-500 mt-0.5">Active</p></div>
+      </div>
+      <div class="bg-[#0d1b2e] border border-yellow-500/10 rounded-2xl p-4 flex items-center gap-3 stat-glow-yellow">
+        <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🟡</div>
+        <div><p class="text-2xl font-black text-yellow-400 leading-none">{{ stats.responding }}</p><p class="text-xs text-slate-500 mt-0.5">Responding</p></div>
+      </div>
+      <div class="bg-[#0d1b2e] border border-green-500/10 rounded-2xl p-4 flex items-center gap-3 stat-glow-green">
+        <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-lg flex-shrink-0">✅</div>
+        <div><p class="text-2xl font-black text-green-400 leading-none">{{ stats.resolved }}</p><p class="text-xs text-slate-500 mt-0.5">Resolved</p></div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-5">
+
+      <!-- LEFT: Trigger panel -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-5 shadow-xl overflow-y-auto" style="max-height:calc(100vh - 180px)">
+
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse inline-block"></span>
+            <h2 class="text-sm font-bold text-white">Trigger Emergency Alert</h2>
+          </div>
+
+          <form method="POST" action="/alerts/send" id="alertForm" enctype="multipart/form-data">
+            <input type="hidden" name="latitude"  id="lat">
+            <input type="hidden" name="longitude" id="lng">
+            <input type="hidden" name="type"      id="alertType">
+
+            <!-- GPS status bar -->
+            <div class="mb-3">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Your Location</label>
+              <div id="gpsBar" class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2 mb-2 transition-all">
+                <span id="gpsIcon" class="text-sm">📡</span>
+                <p id="gpsStatus" class="text-xs text-slate-400 flex-1">Detecting your location...</p>
+                <button type="button" onclick="getLocation()" id="retryBtn"
+                  class="hidden text-xs text-blue-400 hover:text-blue-300 font-semibold">Retry</button>
+              </div>
+              <input type="text" name="location" id="locationText" placeholder="Detecting address..."
+                class="w-full bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-3.5 py-2.5 text-sm transition"/>
+              <p class="text-xs text-slate-700 mt-1">Drag the pin on the map to adjust location.</p>
+            </div>
+
+            <!-- Live mini-map with draggable pin -->
+            <div class="mb-3 rounded-xl overflow-hidden border border-white/10 shadow-lg relative" style="height:150px">
+              <div id="miniMap" class="w-full h-full"></div>
+              <div id="mapLoadingOverlay" class="absolute inset-0 bg-[#0d1b2e] flex items-center justify-center">
+                <div class="text-center">
+                  <div class="text-2xl mb-2">📡</div>
+                  <p class="text-xs text-slate-500">Getting GPS...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-3">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Notes <span class="text-slate-700 normal-case font-normal">(optional)</span></label>
+              <textarea name="notes" rows="2" placeholder="Describe the situation briefly..."
+                class="w-full bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-3.5 py-2 text-sm resize-none transition"></textarea>
+            </div>
+
+
+            <!-- Severity -->
+            <div class="mb-2">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Severity Level</label>
+              <div class="grid grid-cols-4 gap-2" id="severityGroup">
+                <button type="button" onclick="setSeverity('low',this)" class="sev-btn py-1.5 rounded-lg border text-xs font-semibold transition" style="border-color:rgba(74,222,128,.3);color:#4ade80;background:transparent">Low</button>
+                <button type="button" onclick="setSeverity('medium',this)" class="sev-btn py-1.5 rounded-lg border text-xs font-semibold transition sev-active" style="border-color:rgba(251,191,36,.5);color:#fbbf24;background:rgba(251,191,36,.1)">Medium</button>
+                <button type="button" onclick="setSeverity('high',this)" class="sev-btn py-1.5 rounded-lg border text-xs font-semibold transition" style="border-color:rgba(249,115,22,.3);color:#f97316;background:transparent">High</button>
+                <button type="button" onclick="setSeverity('critical',this)" class="sev-btn py-1.5 rounded-lg border text-xs font-semibold transition" style="border-color:rgba(248,113,113,.3);color:#f87171;background:transparent">Critical</button>
+              </div>
+              <input type="hidden" name="severity" id="severityInput" value="medium">
+            </div>
+
+            <!-- Photo upload -->
+            <div class="mb-3">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Photo Evidence <span class="text-slate-700 normal-case font-normal">(optional)</span></label>
+              <label class="flex items-center gap-3 bg-white/5 border border-dashed border-white/10 rounded-xl px-3.5 py-2.5 cursor-pointer hover:bg-white/8 transition">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#64748b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-xs text-slate-500" id="photoLabel">Attach photo (max 5MB)</span>
+                <input type="file" name="photo" accept="image/*" class="hidden" onchange="document.getElementById('photoLabel').textContent=this.files[0]?this.files[0].name:'Attach photo (max 5MB)'">
+              </label>
+            </div>
+            <!-- Emergency Buttons -->
+            <div class="space-y-3">
+              <button type="button" onclick="confirmAlert('fire','Fire Emergency','🔥')"
+                class="btn-e w-full rounded-2xl py-3 px-4 flex items-center gap-3 text-white font-bold"
+                style="background:linear-gradient(135deg,#ea580c,#f97316);box-shadow:0 8px 32px rgba(249,115,22,.3)">
+                <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🔥</div>
+                <div class="text-left flex-1">
+                  <p class="text-base font-extrabold leading-none">FIRE EMERGENCY</p>
+                  <p class="text-xs opacity-70 mt-0.5 font-normal">Bureau of Fire Protection</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-orange-200 flex-shrink-0"></div>
+              </button>
+
+              <button type="button" onclick="confirmAlert('crime','Crime Emergency','🚔')"
+                class="btn-e w-full rounded-2xl py-3 px-4 flex items-center gap-3 text-white font-bold"
+                style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);box-shadow:0 8px 32px rgba(59,130,246,.3)">
+                <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🚔</div>
+                <div class="text-left flex-1">
+                  <p class="text-base font-extrabold leading-none">CRIME EMERGENCY</p>
+                  <p class="text-xs opacity-70 mt-0.5 font-normal">Philippine National Police</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-blue-200 flex-shrink-0"></div>
+              </button>
+
+              <button type="button" onclick="confirmAlert('medical','Medical Emergency','🚑')"
+                class="btn-e w-full rounded-2xl py-3 px-4 flex items-center gap-3 text-white font-bold"
+                style="background:linear-gradient(135deg,#b91c1c,#ef4444);box-shadow:0 8px 32px rgba(239,68,68,.3)">
+                <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🚑</div>
+                <div class="text-left flex-1">
+                  <p class="text-base font-extrabold leading-none">MEDICAL EMERGENCY</p>
+                  <p class="text-xs opacity-70 mt-0.5 font-normal">Emergency Medical Services</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-red-200 flex-shrink-0"></div>
+              </button>
+
+              <button type="button" onclick="confirmAlert('all','All Agencies Alert','🚨')"
+                class="btn-e w-full rounded-2xl py-3 px-4 flex items-center gap-3 text-white font-bold"
+                style="background:linear-gradient(135deg,#1e293b,#334155);box-shadow:0 8px 32px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15)">
+                <div class="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🚨</div>
+                <div class="text-left flex-1">
+                  <p class="text-base font-extrabold leading-none">ALL AGENCIES ALERT</p>
+                  <p class="text-xs opacity-70 mt-0.5 font-normal">BFP + PNP + Emergency Medical Services</p>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-white flex-shrink-0"></div>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Legend -->
+        <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-5">
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Agency Guide</p>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2)">🔥</div>
+              <div><p class="text-xs font-semibold text-white">Orange — Fire Emergency</p><p class="text-xs text-slate-600">Bureau of Fire Protection (BFP)</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2)">🚔</div>
+              <div><p class="text-xs font-semibold text-white">Blue — Crime Emergency</p><p class="text-xs text-slate-600">Philippine National Police (PNP)</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2)">🚑</div>
+              <div><p class="text-xs font-semibold text-white">Red — Medical Emergency</p><p class="text-xs text-slate-600">Emergency Medical Services (EMS)</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15)">🚨</div>
+              <div><p class="text-xs font-semibold text-white">White — All Agencies Alert</p><p class="text-xs text-slate-600">BFP + Philippine National Police + EMS</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Live feed -->
+      <div class="lg:col-span-3">
+        <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl shadow-xl h-full flex flex-col">
+          <div class="px-5 py-4 border-b border-white/5 flex justify-between items-center flex-shrink-0">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block"></span>
+              Live Alert Feed
+            </h2>
+            <span class="text-xs text-slate-600" id="lastUpdated">Refreshes every 15s</span>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-4 space-y-3" style="max-height:700px">
+            {{#each alerts}}
+            <div class="rounded-2xl p-4 border transition fade-in
+              {{#if (eq type 'fire')}}alert-card-fire{{/if}}
+              {{#if (eq type 'crime')}}alert-card-crime{{/if}}
+              {{#if (eq type 'medical')}}alert-card-medical{{/if}}
+              {{#if (eq type 'all')}}alert-card-all{{/if}}
+              {{#if (eq type 'security')}}alert-card-security{{/if}}
+              {{#if (eq type 'faculty')}}alert-card-faculty{{/if}}">
+
+              <div class="flex justify-between items-start gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl
+                    {{#if (eq type 'fire')}}alert-icon-fire{{/if}}
+                    {{#if (eq type 'crime')}}alert-icon-crime{{/if}}
+                    {{#if (eq type 'medical')}}alert-icon-medical{{/if}}
+                    {{#if (eq type 'all')}}alert-icon-all{{/if}}">
+                    {{{ config.icon }}}
+                  </div>
+                  <div>
+                    <p class="font-bold text-white text-sm leading-none">{{ label }}</p>
+                    <p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                      <span>📍</span> {{ location }}
+                    </p>
+                    <p class="text-xs text-slate-600 mt-0.5">{{ reportedBy }} · {{ timeAgo }}</p>
+                    {{#if responseTime}}<p class="text-xs text-green-600 mt-0.5">⚡ Responded in {{ responseTime }}</p>{{/if}}
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                  <span class="text-xs px-2.5 py-1 rounded-full font-semibold border
+                    {{#if (eq status 'active')}}status-active{{/if}}
+                    {{#if (eq status 'responding')}}status-responding{{/if}}
+                    {{#if (eq status 'resolved')}}status-resolved{{/if}}">
+                    {{ status }}
+                  </span>
+                  {{#if severity}}
+                  <span class="text-xs px-2 py-0.5 rounded-md font-semibold
+                    {{#if (eq severity 'low')}}bg-green-500/10 text-green-400{{/if}}
+                    {{#if (eq severity 'medium')}}bg-yellow-500/10 text-yellow-400{{/if}}
+                    {{#if (eq severity 'high')}}bg-orange-500/10 text-orange-400{{/if}}
+                    {{#if (eq severity 'critical')}}bg-red-500/20 text-red-400 animate-pulse{{/if}}">
+                    {{ severity }}
+                  </span>
+                  {{/if}}
+                  {{#if latitude}}
+                  <a href="/map?lat={{ latitude }}&lng={{ longitude }}" class="text-xs text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                    View on Map
+                  </a>
+                  {{/if}}
+                </div>
+              </div>
+
+              {{#if notes}}
+              <p class="text-xs text-slate-600 mt-3 italic border-t border-white/5 pt-2.5">{{ notes }}</p>
+              {{/if}}
+
+              {{#if (eq status 'active')}}
+              <form method="POST" action="/alerts/{{ id }}/status" class="mt-3 flex gap-2">
+                <button name="status" value="responding" class="text-xs bg-yellow-950/50 hover:bg-yellow-900/50 text-yellow-400 border border-yellow-800/50 px-3 py-1.5 rounded-lg transition font-semibold">Responding</button>
+                <button name="status" value="resolved"   class="text-xs bg-green-950/50 hover:bg-green-900/50 text-green-400 border border-green-800/50 px-3 py-1.5 rounded-lg transition font-semibold">Resolved</button>
+              </form>
+              {{/if}}
+              {{#if (eq status 'responding')}}
+              <form method="POST" action="/alerts/{{ id }}/status" class="mt-3">
+                <button name="status" value="resolved" class="text-xs bg-green-950/50 hover:bg-green-900/50 text-green-400 border border-green-800/50 px-3 py-1.5 rounded-lg transition font-semibold">Mark Resolved</button>
+              </form>
+              {{/if}}
+            </div>
+            {{else}}
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+              <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4 text-3xl">✅</div>
+              <p class="font-bold text-slate-300">All Clear</p>
+              <p class="text-sm text-slate-600 mt-1">No active emergencies reported.</p>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[9999] px-4">
+    <div class="bg-[#0d1b2e] border border-white/10 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden fade-in">
+      <div id="modalMap" style="height:200px" class="w-full"></div>
+      <div class="p-6 text-center">
+        <span id="modalIcon" class="text-5xl block mb-3">🚨</span>
+        <h3 class="text-xl font-black text-white mb-1">Confirm Alert</h3>
+        <p class="text-slate-400 text-sm">Sending <strong class="text-white" id="modalType"></strong> alert</p>
+        <p class="text-xs text-slate-500 mt-1" id="modalLocation">📍 Detecting location...</p>
+        <p class="text-xs mt-1 mb-5" id="modalSeverity"></p>
+        <div class="flex gap-3">
+          <button id="cancelBtn" onclick="cancelAlert()" class="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 rounded-xl font-semibold text-sm transition">Cancel</button>
+          <button id="sendBtn" onclick="submitAlert()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-black text-sm transition" style="box-shadow:0 8px 24px rgba(220,38,38,.4)">Send Alert</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Alert cards */
+    .alert-card-fire    { background:rgba(249,115,22,.06); border-color:rgba(249,115,22,.2); }
+    .alert-card-crime   { background:rgba(59,130,246,.06); border-color:rgba(59,130,246,.2); }
+    .alert-card-medical { background:rgba(239,68,68,.06);  border-color:rgba(239,68,68,.2);  }
+    .alert-card-all     { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.15); }
+    .alert-icon-fire    { background:rgba(249,115,22,.15); }
+    .alert-icon-crime   { background:rgba(59,130,246,.15); }
+    .alert-icon-medical { background:rgba(239,68,68,.15);  }
+    .alert-icon-all     { background:rgba(255,255,255,.1);  }
+    .status-active      { background:rgba(239,68,68,.15);  color:#f87171; border-color:rgba(239,68,68,.3);  }
+    .status-responding  { background:rgba(234,179,8,.15);  color:#fbbf24; border-color:rgba(234,179,8,.3);  }
+    .status-resolved    { background:rgba(34,197,94,.15);  color:#4ade80; border-color:rgba(34,197,94,.3);  }
+    /* Leaflet popup dark */
+    .leaflet-popup-content-wrapper { background:#0d1b2e!important; border:1px solid rgba(255,255,255,.08)!important; border-radius:12px!important; color:#e2e8f0!important; box-shadow:0 20px 60px rgba(0,0,0,.7)!important; padding:0!important; }
+    .leaflet-popup-content { margin:0!important; }
+    .leaflet-popup-tip-container { display:none; }
+    .leaflet-popup-close-button { color:#64748b!important; top:8px!important; right:10px!important; font-size:16px!important; }
+    .leaflet-control-zoom a { background:#0d1b2e!important; color:#64748b!important; border-color:rgba(255,255,255,.08)!important; }
+    .leaflet-control-zoom a:hover { background:#1e293b!important; color:#fff!important; }
+    .leaflet-bar { border:1px solid rgba(255,255,255,.08)!important; border-radius:8px!important; overflow:hidden; }
+    /* User location pulse */
+    .user-dot { width:16px; height:16px; background:#3b82f6; border-radius:50%; border:3px solid white; box-shadow:0 0 0 0 rgba(59,130,246,.5); animation:udp 2s infinite; }
+    @keyframes udp { 0%{box-shadow:0 0 0 0 rgba(59,130,246,.5)} 70%{box-shadow:0 0 0 12px rgba(59,130,246,0)} 100%{box-shadow:0 0 0 0 rgba(59,130,246,0)} }
+  </style>
+
+  <script>
+  function makePinIcon(color, emoji) {
+    const em = emoji || '📍';
+    const svg = `
+      <div style="position:relative;width:36px;height:48px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 56" width="36" height="48"
+          style="position:absolute;top:0;left:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))">
+          <path d="M20 0C8.954 0 0 8.954 0 20c0 15 20 36 20 36S40 35 40 20C40 8.954 31.046 0 20 0z"
+            fill="${color}" stroke="white" stroke-width="2"/>
+          <circle cx="20" cy="20" r="9" fill="white" opacity="0.95"/>
+        </svg>
+        <div style="position:absolute;top:7px;left:0;width:36px;text-align:center;font-size:14px;line-height:1">${em}</div>
+      </div>`;
+    return L.divIcon({ className:'', html:svg, iconSize:[36,48], iconAnchor:[18,48], popupAnchor:[0,-52] });
+  }
+
+  const PIN_COLORS = { fire:'#f97316', crime:'#3b82f6', medical:'#ef4444', all:'#ffffff', default:'#ef4444' };
+  const PIN_EMOJI  = { fire:'🔥', crime:'🚔', medical:'🚑', all:'🚨', default:'📍' };
+
+    // ── State ────────────────────────────────────────────────
+    let currentLat = null, currentLng = null, currentAddr = '';
+    let pendingType = null;
+    let miniMap = null, incidentMarker = null, userDot = null;
+    let modalMapInst = null, modalMarker = null;
+    let watchId = null;
+
+    // ── Init mini-map immediately ────────────────────────────
+    window.addEventListener('load', () => {
+      initMiniMap();
+      getLocation();
+    });
+
+    function initMiniMap() {
+      miniMap = L.map('miniMap', { zoomControl: true, attributionControl: false }).setView([12.8797, 121.7740], 6);
+      L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        { subdomains: ['mt0','mt1','mt2','mt3'], maxZoom: 20 }).addTo(miniMap);
+      // Hide loading overlay once map is ready
+      miniMap.whenReady(() => {
+        const overlay = document.getElementById('mapLoadingOverlay');
+        if (overlay) overlay.style.display = 'none';
+      });
+    }
+
+    // ── GPS detection ────────────────────────────────────────
+    function getLocation() {
+      setGps('loading', '📡 Detecting your location...');
+      if (!navigator.geolocation) {
+        setGps('error', 'Geolocation not supported by your browser.');
+        document.getElementById('retryBtn').classList.remove('hidden');
+        return;
+      }
+      // One-time high-accuracy fix
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          currentLat = pos.coords.latitude;
+          currentLng = pos.coords.longitude;
+          document.getElementById('lat').value = currentLat;
+          document.getElementById('lng').value = currentLng;
+          setGps('loading', '🔍 Resolving address...');
+          await reverseGeocode(currentLat, currentLng);
+          placeIncidentPin(currentLat, currentLng);
+          startWatching();
+        },
+        () => {
+          setGps('error', 'Could not get location. Type it manually.');
+          document.getElementById('retryBtn').classList.remove('hidden');
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    // ── Continuous GPS watch ─────────────────────────────────
+    function startWatching() {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        // Update blue "you are here" dot
+        if (!userDot) {
+          userDot = L.marker([lat, lng], {
+            icon: L.divIcon({ className: '', html: '<div class="user-dot"></div>', iconSize: [16,16], iconAnchor: [8,8] }),
+            zIndexOffset: -100
+          }).addTo(miniMap);
+        } else {
+          userDot.setLatLng([lat, lng]);
+        }
+      }, null, { enableHighAccuracy: true, maximumAge: 5000 });
+    }
+
+    // ── Place draggable incident pin ─────────────────────────
+    function placeIncidentPin(lat, lng) {
+      if (!miniMap) return;
+      miniMap.setView([lat, lng], 16);
+      if (incidentMarker) miniMap.removeLayer(incidentMarker);
+      incidentMarker = L.marker([lat, lng], {
+        icon: makePinIcon(PIN_COLORS.default, PIN_EMOJI.default),
+        draggable: true
+      }).addTo(miniMap);
+
+      incidentMarker.bindPopup(
+        '<div style="padding:8px 10px;font-size:11px;color:#94a3b8">📍 Drag to adjust location</div>',
+        { closeButton: false }
+      ).openPopup();
+
+      // On drag end — update coords + reverse geocode
+      incidentMarker.on('dragend', async e => {
+        const pos = e.target.getLatLng();
+        currentLat = pos.lat;
+        currentLng = pos.lng;
+        document.getElementById('lat').value = currentLat;
+        document.getElementById('lng').value = currentLng;
+        setGps('loading', '🔍 Updating address...');
+        await reverseGeocode(currentLat, currentLng);
+      });
+    }
+
+    // ── Reverse geocode ──────────────────────────────────────
+    async function reverseGeocode(lat, lng) {
+      try {
+        const d = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+          { headers: { 'Accept-Language': 'en' } }
+        ).then(r => r.json());
+        const a = d.address || {};
+        const parts = [
+          a.road || a.pedestrian || a.footway,
+          a.suburb || a.village || a.neighbourhood || a.hamlet,
+          a.city_district || a.municipality,
+          a.city || a.town || a.county,
+          a.state || a.province,
+          a.country
+        ].filter(Boolean);
+        currentAddr = parts.join(', ') || d.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        document.getElementById('locationText').value = currentAddr;
+        setGps('ok', '✅ Location detected — drag pin to adjust');
+        document.getElementById('retryBtn').classList.add('hidden');
+      } catch {
+        currentAddr = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        document.getElementById('locationText').value = currentAddr;
+        setGps('ok', '✅ GPS captured');
+      }
+    }
+
+    function setGps(state, msg) {
+      const bar = document.getElementById('gpsBar');
+      document.getElementById('gpsStatus').textContent = msg;
+      if (state === 'ok')     { bar.style.background = 'rgba(34,197,94,.08)';  bar.style.borderColor = 'rgba(34,197,94,.3)'; }
+      else if (state==='error'){ bar.style.background = 'rgba(239,68,68,.08)'; bar.style.borderColor = 'rgba(239,68,68,.3)'; }
+      else                    { bar.style.background = 'rgba(255,255,255,.04)'; bar.style.borderColor = 'rgba(255,255,255,.1)'; }
+    }
+
+    // ── Confirm modal ────────────────────────────────────────
+    function confirmAlert(type, label, icon) {
+      pendingType = type;
+      document.getElementById('modalType').textContent = label;
+      document.getElementById('modalIcon').textContent = icon;
+      const addr = document.getElementById('locationText').value || 'Location not set';
+      document.getElementById('modalLocation').textContent = '📍 ' + addr;
+      // Show severity in modal
+      const sev = document.getElementById('severityInput').value || 'medium';
+      const sevColors = { low:'#4ade80', medium:'#fbbf24', high:'#f97316', critical:'#f87171' };
+      const sevEl = document.getElementById('modalSeverity');
+      if (sevEl) {
+        sevEl.textContent = '⚠️ Severity: ' + sev.toUpperCase();
+        sevEl.style.color = sevColors[sev] || '#fbbf24';
+      }
+      document.getElementById('confirmModal').classList.remove('hidden');
+
+      setTimeout(() => {
+        if (!modalMapInst) {
+          modalMapInst = L.map('modalMap', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false });
+          L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+            { subdomains: ['mt0','mt1','mt2','mt3'], maxZoom: 20 }).addTo(modalMapInst);
+        }
+        if (currentLat && currentLng) {
+          modalMapInst.setView([currentLat, currentLng], 16);
+          if (modalMarker) modalMapInst.removeLayer(modalMarker);
+          modalMarker = L.marker([currentLat, currentLng], {
+            icon: makePinIcon(PIN_COLORS[type] || PIN_COLORS.default, PIN_EMOJI[type] || PIN_EMOJI.default)
+          }).addTo(modalMapInst);
+        } else {
+          modalMapInst.setView([12.8797, 121.7740], 6);
+        }
+        modalMapInst.invalidateSize();
+      }, 120);
+    }
+
+    let countdownInterval = null;
+
+    function submitAlert() {
+      // Start 10-second countdown
+      let count = 10;
+      const btn = document.getElementById('sendBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        cancelBtn.style.display = 'flex';
+        countdownInterval = setInterval(() => {
+          count--;
+          btn.textContent = `Sending in ${count}s...`;
+          if (count <= 0) {
+            clearInterval(countdownInterval);
+            document.getElementById('confirmModal').classList.add('hidden');
+            if (pendingType) {
+              document.getElementById('alertType').value = pendingType;
+              document.getElementById('alertForm').submit();
+            }
+          }
+        }, 1000);
+      } else {
+        document.getElementById('confirmModal').classList.add('hidden');
+        if (pendingType) {
+          document.getElementById('alertType').value = pendingType;
+          document.getElementById('alertForm').submit();
+        }
+      }
+    }
+
+    function cancelAlert() {
+      clearInterval(countdownInterval);
+      document.getElementById('confirmModal').classList.add('hidden');
+      pendingType = null;
+      const btn = document.getElementById('sendBtn');
+      if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = 'Send Alert'; }
+    }
+
+    // ── Live feed refresh ────────────────────────────────────
+    
+    // Severity selector
+    function setSeverity(val, btn) {
+      document.getElementById('severityInput').value = val;
+      document.querySelectorAll('.sev-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.classList.remove('sev-active');
+      });
+      btn.style.background = btn.style.borderColor.replace('.3)',',.15)').replace('.5)',',.15)');
+      btn.classList.add('sev-active');
+    }
+
+    // Sound alarm for new critical/active alerts
+    let knownAlertIds = new Set();
+    function checkNewAlerts(alerts) {
+      alerts.forEach(a => {
+        if (!knownAlertIds.has(a.id) && a.status === 'active') {
+          knownAlertIds.add(a.id);
+          if (knownAlertIds.size > 1) playAlarm(a.severity);
+        } else {
+          knownAlertIds.add(a.id);
+        }
+      });
+    }
+    function playAlarm(severity) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const beeps = severity === 'critical' ? 4 : 2;
+        for (let i = 0; i < beeps; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = severity === 'critical' ? 880 : 660;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.4);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.4 + 0.3);
+          osc.start(ctx.currentTime + i * 0.4);
+          osc.stop(ctx.currentTime + i * 0.4 + 0.3);
+        }
+      } catch(e) {}
+    }
+    setInterval(() => {
+      fetch('/api/alerts').then(r => r.json()).then(data => { checkNewAlerts(data);
+        const active = data.filter(a=>a.status==='active').length;
+        document.title = active > 0 ? `(${active}) Alert Panel — Emergency Hotline` : 'Alert Panel — Emergency Hotline';
+        document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      });
+    }, 15000);
+  </script>
+
+{{> footer}}

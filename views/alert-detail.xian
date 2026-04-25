@@ -1,0 +1,225 @@
+﻿{{> head}}
+<body class="bg-[#060b14] min-h-screen flex flex-col">
+
+  <nav class="bg-[#0a1628]/90 backdrop-blur-xl border-b border-white/5 px-6 py-3 flex justify-between items-center sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center pulse-ring shadow-lg shadow-red-900/40">
+        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-white leading-none">Emergency Hotline</p>
+        <p class="text-xs text-slate-500 mt-0.5">Alert Detail</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{{ dashboardLink }}" class="nav-btn">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="/alerts/history" class="nav-btn">History</a>
+      <button onclick="window.print()" class="nav-btn">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        Print
+      </button>
+      <a href="/logout" class="nav-btn-danger">Sign Out</a>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-5 py-6 flex-1" id="printArea">
+
+    {{#if success_msg}}
+    <div class="mb-4 bg-green-950/50 border border-green-700/40 text-green-300 px-4 py-3 rounded-xl text-sm fade-in">✅ {{ success_msg }}</div>
+    {{/if}}
+
+    <!-- Header card -->
+    <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-6 mb-5 shadow-xl">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style="{{#if (eq alert.type 'fire')}}background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.25){{/if}}{{#if (eq alert.type 'crime')}}background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25){{/if}}{{#if (eq alert.type 'medical')}}background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25){{/if}}{{#if (eq alert.type 'all')}}background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12){{/if}}">
+            {{#if (eq alert.type 'fire')}}
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#f97316" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+            {{/if}}
+            {{#if (eq alert.type 'crime')}}
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            {{/if}}
+            {{#if (eq alert.type 'medical')}}
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            {{/if}}
+            {{#if (eq alert.type 'all')}}
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            {{/if}}
+          </div>
+          <div>
+            <h1 class="text-xl font-black text-white">{{ alert.label }}</h1>
+            <p class="text-slate-400 text-sm mt-1 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              {{ alert.location }}
+            </p>
+            <p class="text-slate-600 text-xs mt-0.5">Reported by {{ alert.reportedBy }} · {{ alert.timeAgo }}</p>
+          </div>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <span class="text-sm px-3 py-1 rounded-lg font-bold
+            {{#if (eq alert.status 'active')}}bg-red-500/15 text-red-400{{/if}}
+            {{#if (eq alert.status 'responding')}}bg-yellow-500/15 text-yellow-400{{/if}}
+            {{#if (eq alert.status 'resolved')}}bg-green-500/15 text-green-400{{/if}}">
+            {{ alert.status }}
+          </span>
+          {{#if alert.severity}}
+          <span class="text-xs px-2.5 py-1 rounded-lg font-semibold
+            {{#if (eq alert.severity 'critical')}}bg-red-500/20 text-red-400{{/if}}
+            {{#if (eq alert.severity 'high')}}bg-orange-500/15 text-orange-400{{/if}}
+            {{#if (eq alert.severity 'medium')}}bg-yellow-500/10 text-yellow-500{{/if}}
+            {{#if (eq alert.severity 'low')}}bg-green-500/10 text-green-500{{/if}}">
+            {{ alert.severity }} severity
+          </span>
+          {{/if}}
+          {{#if alert.responseTime}}
+          <span class="text-xs text-green-500 bg-green-500/10 px-2.5 py-1 rounded-lg">⚡ {{ alert.responseTime }} response</span>
+          {{/if}}
+        </div>
+      </div>
+
+      {{#if alert.notes}}
+      <div class="mt-4 pt-4 border-t border-white/5">
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Notes</p>
+        <p class="text-sm text-slate-300">{{ alert.notes }}</p>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-5 mb-5">
+
+      <!-- Timeline -->
+      <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-5">
+        <h2 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+          <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Response Timeline
+        </h2>
+        <div class="space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-red-500/15 border border-red-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-white">Alert Reported</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ alert.createdAt }}</p>
+              <p class="text-xs text-slate-600">by {{ alert.reportedBy }}</p>
+            </div>
+          </div>
+          {{#if alert.respondedAt}}
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-yellow-500/15 border border-yellow-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-white">Response Dispatched</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ alert.respondedAt }}</p>
+              {{#if alert.responseTime}}<p class="text-xs text-yellow-600">{{ alert.responseTime }} after report</p>{{/if}}
+            </div>
+          </div>
+          {{/if}}
+          {{#if alert.resolvedAt}}
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-green-500/15 border border-green-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-white">Incident Resolved</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ alert.resolvedAt }}</p>
+            </div>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-white/5">
+          <p class="text-sm font-bold text-white">Incident Location</p>
+        </div>
+        {{#if alert.latitude}}
+        <div id="detailMap" style="height:220px"></div>
+        {{else}}
+        <div class="flex items-center justify-center h-48 text-slate-600 text-sm">No GPS coordinates</div>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Photo evidence -->
+    {{#if alert.photoPath}}
+    <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-5 mb-5">
+      <h2 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Photo Evidence
+      </h2>
+      <img src="{{ alert.photoPath }}" alt="Evidence"
+        class="max-h-64 rounded-xl border border-white/10 cursor-pointer hover:opacity-90 transition"
+        onclick="window.open('{{ alert.photoPath }}','_blank')"/>
+    </div>
+    {{/if}}
+
+    <!-- Comments / Responder Notes -->
+    <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-5">
+      <h2 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        Responder Notes & Updates
+        <span class="text-xs text-slate-600 bg-white/5 px-2 py-0.5 rounded-full">{{ comments.length }}</span>
+      </h2>
+
+      <div class="space-y-3 mb-4">
+        {{#each comments}}
+        <div class="bg-white/3 border border-white/8 rounded-xl p-3">
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs font-bold text-white">{{ author }}</p>
+            <p class="text-xs text-slate-600">{{ timeAgo }}</p>
+          </div>
+          <p class="text-sm text-slate-300">{{ message }}</p>
+        </div>
+        {{else}}
+        <p class="text-slate-600 text-sm text-center py-4">No notes yet.</p>
+        {{/each}}
+      </div>
+
+      <form method="POST" action="/alerts/{{ alert.id }}/comment" class="flex gap-2">
+        <input type="text" name="message" placeholder="Add a note or update..."
+          class="flex-1 bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-3.5 py-2.5 text-sm transition" required/>
+        <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition flex-shrink-0">
+          Add Note
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  {{#if alert.latitude}}
+  <script>
+    const detailMap = L.map('detailMap', { zoomControl: true, attributionControl: false })
+      .setView([{{ alert.latitude }}, {{ alert.longitude }}], 16);
+    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      { subdomains: ['mt0','mt1','mt2','mt3'], maxZoom: 20 }).addTo(detailMap);
+    const colors = { fire:'#f97316', crime:'#3b82f6', medical:'#ef4444', all:'#e2e8f0' };
+    const color = colors['{{ alert.type }}'] || '#ef4444';
+    const html = `<div style="position:relative;width:36px;height:48px">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 56" width="36" height="48" style="position:absolute;top:0;left:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))">
+        <path d="M20 0C8.954 0 0 8.954 0 20c0 15 20 36 20 36S40 35 40 20C40 8.954 31.046 0 20 0z" fill="${color}" stroke="white" stroke-width="2"/>
+        <circle cx="20" cy="20" r="9" fill="white" opacity="0.95"/>
+      </svg>
+    </div>`;
+    L.marker([{{ alert.latitude }}, {{ alert.longitude }}], {
+      icon: L.divIcon({ className:'', html, iconSize:[36,48], iconAnchor:[18,48] })
+    }).addTo(detailMap);
+  </script>
+  {{/if}}
+
+  <style>
+    @media print {
+      nav, .nav-btn, .nav-btn-danger, button[onclick="window.print()"] { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .bg-\[#060b14\], .bg-\[#0d1b2e\] { background: #f8f9fa !important; }
+      #detailMap { display: none; }
+    }
+  </style>
+
+{{> footer}}

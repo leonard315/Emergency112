@@ -1,0 +1,42 @@
+{
+  "name": "Emergency Hotline",
+  "short_name": "Emergency",
+  "description": "Smart Multi-Emergency Alarm System — Report emergencies instantly",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060b14",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Send Alert",
+      "short_name": "SOS",
+      "description": "Report an emergency immediately",
+      "url": "/alerts",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Live Map",
+      "short_name": "Map",
+      "description": "View live emergency map",
+      "url": "/map",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["utilities", "lifestyle"],
+  "screenshots": []
+}

@@ -1,0 +1,312 @@
+﻿{{> head}}
+<body class="bg-[#060b14] min-h-screen">
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<style>
+  .type-fire    { background:rgba(249,115,22,.12); border-color:rgba(249,115,22,.25); color:#fb923c; }
+  .type-crime   { background:rgba(59,130,246,.12); border-color:rgba(59,130,246,.25); color:#60a5fa; }
+  .type-medical { background:rgba(239,68,68,.12);  border-color:rgba(239,68,68,.25);  color:#f87171; }
+  .type-all     { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:#cbd5e1; }
+
+  .bar-fire    { background:#f97316; }
+  .bar-crime   { background:#3b82f6; }
+  .bar-medical { background:#ef4444; }
+  .bar-all     { background:#94a3b8; }
+
+  .badge { font-size:11px; font-weight:700; padding:2px 10px; border-radius:99px; border:1px solid; }
+  .badge-active     { background:rgba(239,68,68,.15);  color:#f87171; border-color:rgba(239,68,68,.3); }
+  .badge-responding { background:rgba(234,179,8,.15);  color:#fbbf24; border-color:rgba(234,179,8,.3); }
+  .badge-resolved   { background:rgba(34,197,94,.15);  color:#4ade80; border-color:rgba(34,197,94,.3); }
+  .badge-critical   { background:rgba(239,68,68,.2);   color:#f87171; border-color:rgba(239,68,68,.4); }
+  .badge-high       { background:rgba(249,115,22,.15); color:#fb923c; border-color:rgba(249,115,22,.3); }
+  .badge-medium     { background:rgba(234,179,8,.1);   color:#fbbf24; border-color:rgba(234,179,8,.2); }
+  .badge-low        { background:rgba(34,197,94,.1);   color:#4ade80; border-color:rgba(34,197,94,.2); }
+
+  .alert-row { background:#0d1b2e; border:1px solid rgba(255,255,255,.05); border-radius:14px; transition:all .15s; display:block; text-decoration:none; }
+  .alert-row:hover { border-color:rgba(255,255,255,.12); transform:translateY(-1px); background:#0f1f35; }
+
+  .filter-input { width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#f1f5f9; border-radius:10px; padding:9px 12px; font-size:13px; outline:none; transition:all .15s; }
+  .filter-input:focus { border-color:rgba(220,38,38,.4); box-shadow:0 0 0 3px rgba(220,38,38,.08); }
+  .filter-input option { background:#0d1b2e; }
+</style>
+
+
+  <!-- -- SIDEBAR -- -->
+  <aside class="sidebar-fixed w-64 bg-[#080f1e] border-r border-white/5 flex flex-col fixed h-full z-50 shadow-2xl" id="sidebar">
+    <div class="px-5 py-5 border-b border-white/5 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center flex-shrink-0 pulse-ring shadow-lg shadow-red-900/40">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-black text-white leading-none">Emergency Hotline</p>
+          <p class="text-xs text-slate-500 mt-0.5">Alert History</p>
+        </div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      {{#if isUser}}
+      <!-- User nav -->
+      <a href="/user/dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Home
+      </a>
+      <a href="/alerts/history" class="nav-item nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-sm font-semibold">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        My Reports
+      </a>
+      <a href="/map" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Live Map
+      </a>
+      <a href="/profile" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        My Profile
+      </a>
+      {{else}}
+      <!-- Admin / Agency nav -->
+      <p class="text-xs text-slate-700 font-semibold uppercase tracking-widest px-3 mb-2">Main</p>
+      <a href="{{ dashboardLink }}" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <p class="text-xs text-slate-700 font-semibold uppercase tracking-widest px-3 mb-2 mt-4">Reports</p>
+      <a href="/alerts/history" class="nav-item nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-sm font-semibold">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Alert History
+      </a>
+      <a href="/map" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Live Map
+      </a>
+      <a href="/profile" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        My Profile
+      </a>
+      {{/if}}
+    </nav>
+    <div class="px-3 py-3 border-t border-white/5 flex-shrink-0" style="padding-bottom:max(60px,env(safe-area-inset-bottom))">
+      <a href="/logout" class="nav-item flex items-center gap-2 px-3 py-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-950/20 text-sm transition">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- -- MAIN -- -->
+  <div class="main-content ml-0 flex-1 flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-[#080f1e]/90 backdrop-blur-xl border-b border-white/5 px-4 lg:px-6 py-3.5 sticky top-0 z-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="openSidebar()" style="width:36px;height:36px;min-width:36px;min-height:36px;max-width:36px;max-height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#94a3b8;cursor:pointer;padding:0;box-sizing:border-box" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <h1 class="text-base font-black text-white leading-none">{{#if isUser}}My Reports{{else}}Alert History{{/if}}</h1>
+          <p class="text-xs text-slate-500 mt-0.5 hidden sm:block">{{#if isUser}}Your submitted emergency reports{{else}}Full log of all emergency alerts{{/if}}</p>
+        </div>
+      </div>
+      <a href="/alerts/export"
+        class="flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/25 text-green-400 px-4 py-2 rounded-xl text-xs font-bold transition">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Export CSV
+      </a>
+    </header>
+
+    <div class="flex-1 px-4 lg:px-6 py-5 pb-24 lg:pb-6">
+
+      <!-- Flash -->
+      {{#if success_msg}}
+      <div class="mb-4 bg-green-950/50 border border-green-700/40 text-green-300 px-4 py-3 rounded-xl text-sm flex items-center gap-2 fade-in">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        {{ success_msg }}
+      </div>
+      {{/if}}
+
+      <!-- Resolved notice for users -->
+      {{#if resolvedNotice}}
+      <div class="mb-4 bg-green-950/40 border border-green-600/40 text-green-300 px-4 py-3.5 rounded-2xl flex items-start gap-3 fade-in">
+        <div class="w-9 h-9 bg-green-500/15 border border-green-500/25 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-green-200 leading-none mb-0.5">Report Resolved</p>
+          <p class="text-xs text-green-400">{{ resolvedNotice }}</p>
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- -- FILTER BAR -- -->
+      <form method="GET" action="/alerts/history"
+        class="bg-[#0d1b2e] border border-white/6 rounded-2xl p-4 mb-5 shadow-xl">
+        <div class="flex flex-wrap gap-3 items-end">
+
+          <!-- Search -->
+          <div class="flex-1 min-w-[180px]">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Search</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" name="search" value="{{ filterSearch }}"
+                placeholder="Location, reporter, notes..."
+                class="filter-input pl-9"/>
+            </div>
+          </div>
+
+          <!-- Type -->
+          <div class="min-w-[140px]">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Type</label>
+            <select name="type" class="filter-input">
+              <option value="">All Types</option>
+              <option value="fire"    {{#if (eq filterType 'fire')}}selected{{/if}}>?? Fire</option>
+              <option value="crime"   {{#if (eq filterType 'crime')}}selected{{/if}}>?? Crime</option>
+              <option value="medical" {{#if (eq filterType 'medical')}}selected{{/if}}>?? Medical</option>
+              <option value="all"     {{#if (eq filterType 'all')}}selected{{/if}}>?? All Agencies</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div class="min-w-[140px]">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
+            <select name="status" class="filter-input">
+              <option value="">All Statuses</option>
+              <option value="active"     {{#if (eq filterStatus 'active')}}selected{{/if}}>Active</option>
+              <option value="responding" {{#if (eq filterStatus 'responding')}}selected{{/if}}>Responding</option>
+              <option value="resolved"   {{#if (eq filterStatus 'resolved')}}selected{{/if}}>Resolved</option>
+            </select>
+          </div>
+
+          <!-- Severity -->
+          <div class="min-w-[130px]">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Severity</label>
+            <select name="severity" class="filter-input">
+              <option value="">All Levels</option>
+              <option value="low"      {{#if (eq filterSeverity 'low')}}selected{{/if}}>Low</option>
+              <option value="medium"   {{#if (eq filterSeverity 'medium')}}selected{{/if}}>Medium</option>
+              <option value="high"     {{#if (eq filterSeverity 'high')}}selected{{/if}}>High</option>
+              <option value="critical" {{#if (eq filterSeverity 'critical')}}selected{{/if}}>Critical</option>
+            </select>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2">
+            <button type="submit"
+              class="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition"
+              style="box-shadow:0 4px 16px rgba(220,38,38,.3)">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Search
+            </button>
+            <a href="/alerts/history"
+              class="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              Clear
+            </a>
+          </div>
+        </div>
+      </form>
+
+      <!-- Result count -->
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-xs text-slate-600 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <span class="text-slate-400 font-semibold">{{ alerts.length }}</span> alert(s) found
+        </p>
+      </div>
+
+      <!-- -- ALERT CARDS -- -->
+      <div class="space-y-3">
+        {{#each alerts}}
+        <div class="bg-[#0d1b2e] rounded-2xl overflow-hidden fade-in"
+          style="border:1px solid {{#if (eq status 'resolved')}}rgba(34,197,94,.2){{else}}{{#if (eq status 'responding')}}rgba(234,179,8,.2){{else}}rgba(255,255,255,.06){{/if}}{{/if}}">
+
+          <div class="px-5 py-4">
+            <div class="flex items-start gap-4">
+              <!-- Icon -->
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="{{#if (eq type 'fire')}}background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.25){{/if}}{{#if (eq type 'crime')}}background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25){{/if}}{{#if (eq type 'medical')}}background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25){{/if}}{{#if (eq type 'all')}}background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12){{/if}}">
+                {{{ config.icon }}}
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <p class="text-base font-black text-white leading-none mb-1.5">{{ label }}</p>
+                <p class="text-xs text-slate-400 flex items-center gap-1.5 mb-0.5">
+                  <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  {{ location }}
+                </p>
+                <p class="text-xs text-slate-600">{{ reportedBy }} &middot; {{ timeAgo }}
+                  {{#if responseTime}}<span class="text-green-500 font-semibold ml-1">&#9889; Responded in {{ responseTime }}</span>{{/if}}
+                </p>
+                {{#if isFalseReport}}<p class="text-xs text-yellow-500 mt-1">&#9888; Marked as false report</p>{{/if}}
+              </div>
+              <!-- Badges + map -->
+              <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+                <span class="badge {{#if (eq status 'active')}}badge-active{{/if}}{{#if (eq status 'responding')}}badge-responding{{/if}}{{#if (eq status 'resolved')}}badge-resolved{{/if}}">{{ status }}</span>
+                {{#if severity}}<span class="badge {{#if (eq severity 'critical')}}badge-critical{{/if}}{{#if (eq severity 'high')}}badge-high{{/if}}{{#if (eq severity 'medium')}}badge-medium{{/if}}{{#if (eq severity 'low')}}badge-low{{/if}}">{{ severity }}</span>{{/if}}
+                {{#if latitude}}<a href="/map?lat={{ latitude }}&lng={{ longitude }}" class="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition font-medium mt-1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>View on Map</a>{{/if}}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom bar -->
+          <div class="px-5 pb-4 flex flex-wrap items-center gap-2">
+            {{#if (eq status 'resolved')}}
+            <div class="flex items-center gap-2 bg-green-950/40 border border-green-700/30 rounded-xl px-3 py-2 flex-1">
+              <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <p class="text-xs text-green-400 font-semibold">Resolved by the responding agency</p>
+            </div>
+            {{else}}
+            <a href="/alerts/{{ id }}" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View Details
+            </a>
+            {{/if}}
+          </div>
+        </div>
+        {{else}}
+        <div class="flex flex-col items-center justify-center py-20 text-center bg-[#0d1b2e] border border-white/5 rounded-2xl">
+          <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <p class="text-slate-400 font-semibold">No alerts found</p>
+          <p class="text-slate-600 text-sm mt-1">{{#if isUser}}You haven't submitted any reports yet.{{else}}Try adjusting your filters.{{/if}}</p>
+          <a href="/alerts/history" class="mt-4 text-xs text-red-400 hover:text-red-300 transition font-semibold">Clear filters ?</a>
+        </div>
+        {{/each}}
+      </div>
+
+    </div>
+
+    <footer class="hidden lg:flex items-center justify-between px-6 py-4 border-t border-white/5 text-xs text-slate-700">
+      <span>Emergency Hotline � Alert History</span>
+      <span>&copy; 2026 � Mindoro State University</span>
+    </footer>
+  </div>
+
+{{> footer}}
+
+<script>
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+(function() {
+  var sb = document.getElementById('sidebar');
+  if (!sb) return;
+  sb.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (href === '/logout') return;
+    e.preventDefault();
+    sb.classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(function() { window.location.href = href; }, 200);
+  });
+})();
+</script>
+
+</body>
+</html>
+
+

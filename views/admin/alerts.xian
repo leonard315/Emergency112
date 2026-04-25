@@ -1,0 +1,378 @@
+﻿{{> head}}
+<body class="bg-[#060b14] min-h-screen">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<style>
+  .nav-item{border-left:3px solid transparent;transition:all .15s}
+  .nav-item:hover{background:rgba(255,255,255,.04);color:#fff;border-left-color:rgba(255,255,255,.1)}
+  .nav-active{background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(220,38,38,.04));border-left:3px solid #dc2626;color:#fff}
+  select option{background:#0d1b2e;color:#e2e8f0}
+</style>
+
+  <!-- Sidebar -->
+  <aside class="sidebar-fixed w-64 bg-[#0a1628] border-r border-white/5 flex flex-col fixed h-full z-50 shadow-2xl" id="sidebar">
+    <div class="px-5 py-5 border-b border-white/5 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center pulse-ring shadow-lg shadow-red-900/40 flex-shrink-0">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-black text-white leading-none tracking-tight">Emergency Hotline</p>
+          <p class="text-xs text-red-400 font-semibold mt-0.5 tracking-wider uppercase">Admin Panel</p>
+        </div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <p class="text-xs text-slate-700 font-semibold uppercase tracking-widest px-3 mb-2">Main</p>
+      <a href="/admin/dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/alerts" class="nav-item nav-active flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-sm font-semibold">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Manage Alerts
+      </a>
+      <a href="/admin/users" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Manage Users
+      </a>
+      <p class="text-xs text-slate-700 font-semibold uppercase tracking-widest px-3 mb-2 mt-4">Reports</p>
+      <a href="/alerts/history" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Alert History
+      </a>
+      <a href="/map" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Live Map
+      </a>
+      <a href="/profile" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-r-xl text-slate-400 text-sm font-medium">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        My Profile
+      </a>
+    </nav>
+    <div class="px-3 py-3 border-t border-white/5 flex-shrink-0" style="padding-bottom:max(60px,env(safe-area-inset-bottom))">
+      <div class="flex items-center gap-2.5 px-2 py-2 mb-1 rounded-xl bg-white/3">
+        <div class="w-7 h-7 bg-red-600/20 border border-red-700/40 rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-black text-red-400">{{ adminName.[0] }}</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-bold text-white truncate leading-none">{{ adminName }}</p>
+          <p class="text-xs text-red-400 mt-0.5">Administrator</p>
+        </div>
+      </div>
+      <a href="/logout" class="nav-item flex items-center gap-2 px-2 py-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-950/20 text-sm transition">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content ml-0 flex-1 flex flex-col min-h-screen w-full">
+
+    <header class="bg-[#0a1628]/80 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <button onclick="openSidebar()" style="width:36px;height:36px;min-width:36px;min-height:36px;max-width:36px;max-height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#94a3b8;cursor:pointer;padding:0;box-sizing:border-box" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <h1 class="text-base lg:text-lg font-black text-white tracking-tight">Manage Alerts</h1>
+          <p class="text-xs text-slate-500 mt-0.5 hidden sm:block">Review, update, and manage all emergency alerts</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex-1 px-4 lg:px-8 py-5">
+
+      {{#if success_msg}}
+      <div class="mb-5 bg-green-950/40 border border-green-700/30 text-green-300 px-4 py-3 rounded-xl text-sm flex items-center gap-2 fade-in">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        {{ success_msg }}
+      </div>
+      {{/if}}
+      {{#if error_msg}}
+      <div class="mb-5 bg-red-950/40 border border-red-700/30 text-red-300 px-4 py-3 rounded-xl text-sm flex items-center gap-2 fade-in">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>
+        {{ error_msg }}
+      </div>
+      {{/if}}
+
+      <!-- Filter bar -->
+      <form method="GET" action="/admin/alerts" class="bg-[#0d1b2e] border border-white/5 rounded-2xl p-4 mb-5 flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[140px]">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Emergency Type</label>
+          <select name="type" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm transition">
+            <option value="">All Types</option>
+            <option value="fire"    {{#if (eq filterType 'fire')}}selected{{/if}}>Fire Emergency</option>
+            <option value="crime"   {{#if (eq filterType 'crime')}}selected{{/if}}>Crime Emergency</option>
+            <option value="medical" {{#if (eq filterType 'medical')}}selected{{/if}}>Medical Emergency</option>
+            <option value="all"     {{#if (eq filterType 'all')}}selected{{/if}}>All Agencies</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[140px]">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Status</label>
+          <select name="status" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm transition">
+            <option value="">All Statuses</option>
+            <option value="active"     {{#if (eq filterStatus 'active')}}selected{{/if}}>Active</option>
+            <option value="responding" {{#if (eq filterStatus 'responding')}}selected{{/if}}>Responding</option>
+            <option value="resolved"   {{#if (eq filterStatus 'resolved')}}selected{{/if}}>Resolved</option>
+          </select>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+            Filter
+          </button>
+          <a href="/admin/alerts" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            Clear
+          </a>
+        </div>
+      </form>
+
+      <!-- Table -->
+      <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-5 py-3.5 border-b border-white/5 flex justify-between items-center">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse inline-block"></span>
+            Alert Records
+          </h2>
+          <span class="text-xs text-slate-600">{{ alerts.length }} result(s)</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-white/5">
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest">Type</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest">Location</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest hidden md:table-cell">Reporter</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest">Status</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest hidden sm:table-cell">Time</th>
+                <th class="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-widest">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+              {{#each alerts}}
+              <tr class="hover:bg-white/3 transition group border-l-2
+                {{#if (eq type 'fire')}}border-orange-500/50{{/if}}
+                {{#if (eq type 'crime')}}border-blue-500/50{{/if}}
+                {{#if (eq type 'medical')}}border-red-500/50{{/if}}
+                {{#if (eq type 'all')}}border-white/20{{/if}}">
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                      {{#if (eq type 'fire')}}bg-orange-500/15{{/if}}
+                      {{#if (eq type 'crime')}}bg-blue-500/15{{/if}}
+                      {{#if (eq type 'medical')}}bg-red-500/15{{/if}}
+                      {{#if (eq type 'all')}}bg-white/8{{/if}}">
+                      {{#if (eq type 'fire')}}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>{{/if}}
+                      {{#if (eq type 'crime')}}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>{{/if}}
+                      {{#if (eq type 'medical')}}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>{{/if}}
+                      {{#if (eq type 'all')}}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>{{/if}}
+                    </div>
+                    <span class="text-white font-semibold text-xs">{{ label }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-4 text-slate-400 text-xs max-w-[160px] truncate">{{ location }}</td>
+                <td class="px-5 py-4 text-slate-400 text-xs hidden md:table-cell">{{ reportedBy }}</td>
+                <td class="px-5 py-4">
+                  <span class="text-xs px-2 py-0.5 rounded-md font-semibold
+                    {{#if (eq status 'active')}}bg-red-500/15 text-red-400{{/if}}
+                    {{#if (eq status 'responding')}}bg-yellow-500/15 text-yellow-400{{/if}}
+                    {{#if (eq status 'resolved')}}bg-green-500/15 text-green-400{{/if}}">
+                    {{ status }}
+                  </span>
+                </td>
+                <td class="px-5 py-4 text-slate-600 text-xs hidden sm:table-cell">{{ timeAgo }}</td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-1.5">
+                    {{#if (eq status 'active')}}
+                    <form method="POST" action="/admin/alerts/{{ id }}/status">
+                      <button name="status" value="responding" class="flex items-center gap-1 text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/20 px-2.5 py-1.5 rounded-lg transition font-medium">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Respond
+                      </button>
+                    </form>
+                    {{/if}}
+                    {{#if (eq status 'responding')}}
+                    <form method="POST" action="/admin/alerts/{{ id }}/status">
+                      <button name="status" value="resolved" class="flex items-center gap-1 text-xs bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 px-2.5 py-1.5 rounded-lg transition font-medium">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        Resolve
+                      </button>
+                    </form>
+                    {{/if}}
+                    <form method="POST" action="/admin/alerts/{{ id }}/delete" onsubmit="return confirm('Delete this alert?')">
+                      <button type="submit" class="flex items-center gap-1 text-xs bg-white/5 hover:bg-red-500/10 text-slate-500 hover:text-red-400 border border-white/8 hover:border-red-500/20 px-2.5 py-1.5 rounded-lg transition font-medium">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Delete
+                      </button>
+                    </form>
+                    {{#unless isFalseReport}}
+                    <form method="POST" action="/admin/alerts/{{ id }}/false-report" onsubmit="return confirm('Mark as FALSE/SCAM report? Reporter will be warned.')">
+                      <button type="submit" class="flex items-center gap-1 text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 px-2.5 py-1.5 rounded-lg transition font-medium">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                        False
+                      </button>
+                    </form>
+                    {{else}}
+                    <span class="text-xs bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2.5 py-1.5 rounded-lg font-medium">?? False</span>
+                    {{/unless}}
+                  </div>
+                </td>
+              </tr>
+              {{else}}
+              <tr>
+                <td colspan="6" class="px-5 py-16 text-center">
+                  <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-7 h-7 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                  </div>
+                  <p class="text-slate-400 text-sm font-semibold">No alerts found</p>
+                  <p class="text-slate-600 text-xs mt-1">Try adjusting your filters or check back later.</p>
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Photo Evidence Table -->
+      <div class="bg-[#0d1b2e] border border-white/5 rounded-2xl overflow-hidden shadow-xl mt-6">
+        <div class="px-5 py-4 border-b border-white/5 flex justify-between items-center">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Photo Evidence
+          </h2>
+          <span class="text-xs text-slate-600 bg-white/5 px-2.5 py-1 rounded-full">{{ photoAlerts.length }} photo(s) submitted</span>
+        </div>
+
+        {{#if photoAlerts.length}}
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {{#each photoAlerts}}
+          <div class="bg-white/3 border border-white/8 rounded-2xl overflow-hidden hover:border-white/15 transition group">
+            <!-- Photo -->
+            <div class="relative overflow-hidden" style="height:180px">
+              <img src="{{ photoPath }}" alt="Evidence"
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-300 cursor-pointer"
+                onclick="openPhoto('{{ photoPath }}')" />
+              <!-- Type badge overlay -->
+              <div class="absolute top-2 left-2">
+                <span class="text-xs px-2 py-0.5 rounded-md font-semibold backdrop-blur-sm
+                  {{#if (eq type 'fire')}}bg-orange-500/80 text-white{{/if}}
+                  {{#if (eq type 'crime')}}bg-blue-500/80 text-white{{/if}}
+                  {{#if (eq type 'medical')}}bg-red-500/80 text-white{{/if}}
+                  {{#if (eq type 'all')}}bg-slate-700/80 text-white{{/if}}">
+                  {{ label }}
+                </span>
+              </div>
+              <!-- Status badge overlay -->
+              <div class="absolute top-2 right-2">
+                <span class="text-xs px-2 py-0.5 rounded-md font-semibold backdrop-blur-sm
+                  {{#if (eq status 'active')}}bg-red-500/80 text-white{{/if}}
+                  {{#if (eq status 'responding')}}bg-yellow-500/80 text-white{{/if}}
+                  {{#if (eq status 'resolved')}}bg-green-500/80 text-white{{/if}}">
+                  {{ status }}
+                </span>
+              </div>
+              <!-- View full size -->
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <button onclick="openPhoto('{{ photoPath }}')"
+                  class="bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+                  View Full Size
+                </button>
+              </div>
+            </div>
+            <!-- Info -->
+            <div class="p-3">
+              <p class="text-xs font-semibold text-white truncate">{{ location }}</p>
+              <div class="flex items-center justify-between mt-1.5">
+                <p class="text-xs text-slate-500">{{ reportedBy }}</p>
+                <p class="text-xs text-slate-600">{{ timeAgo }}</p>
+              </div>
+              {{#if notes}}
+              <p class="text-xs text-slate-600 mt-1.5 italic truncate">{{ notes }}</p>
+              {{/if}}
+              <div class="flex gap-2 mt-2.5">
+                <a href="{{ photoPath }}" download
+                  class="flex-1 flex items-center justify-center gap-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white px-2 py-1.5 rounded-lg transition">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  Download
+                </a>
+                <a href="/map?lat={{ latitude }}&lng={{ longitude }}"
+                  class="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 px-2 py-1.5 rounded-lg transition {{#unless latitude}}opacity-40 pointer-events-none{{/unless}}">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                  On Map
+                </a>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <div class="px-5 py-14 text-center">
+          <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-7 h-7 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <p class="text-slate-400 text-sm font-semibold">No photo evidence yet</p>
+          <p class="text-slate-600 text-xs mt-1">Photos attached to alerts will appear here.</p>
+        </div>
+        {{/if}}
+      </div>
+
+    </div>
+
+    <!-- Photo lightbox -->
+    <div id="photoLightbox" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onclick="closeLightbox()">
+      <div class="relative max-w-4xl w-full">
+        <img id="lightboxImg" src="" alt="Evidence" class="w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"/>
+        <button onclick="closeLightbox()" class="absolute top-3 right-3 w-9 h-9 bg-black/50 hover:bg-black/70 border border-white/20 rounded-full flex items-center justify-center text-white transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <script>
+    function openPhoto(src) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('photoLightbox').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      document.getElementById('photoLightbox').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    function openSidebar(){
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function closeSidebar(){
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+      document.body.style.overflow='';
+    }
+    function navTo(e,url){ e.preventDefault(); closeSidebar(); setTimeout(()=>{ window.location.href=url; },220); }
+
+    // Attach sidebar link interceptor directly � script is at bottom so DOM is ready
+    (function() {
+      var sb = document.getElementById('sidebar');
+      if (!sb) return;
+      sb.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (href === '/logout') return;
+        e.preventDefault();
+        sb.classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+        setTimeout(function() { window.location.href = href; }, 200);
+      });
+    })();
+    </script>
+
+    {{> footer}}
+  </div>
+
+
