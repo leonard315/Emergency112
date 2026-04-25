@@ -15,8 +15,7 @@ const accounts = [
   { email: "bfp@emergency.gov.ph",     name: "BFP Responder",  password: "bfp12345",  role: "bfp" },
   { email: "pnp@emergency.gov.ph",     name: "PNP Responder",  password: "pnp12345",  role: "pnp" },
   { email: "ems@emergency.gov.ph",     name: "EMS Responder",  password: "ems12345",  role: "ems" },
-  { email: "security@school.edu.ph", name: "School Security", password: "security123", role: "security" },
-  { email: "faculty@school.edu.ph",    name: "Faculty Admin",  password: "faculty123",role: "faculty" }
+
 ];
 
 for (const acc of accounts) {
