@@ -335,6 +335,7 @@
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     soundEnabled = true;
+    localStorage.setItem('agencySoundEnabled', '1');
     setSoundUI(true);
     playConfirmBeep();
   }
@@ -342,17 +343,22 @@
   function disableSound() {
     soundEnabled = false;
     setSoundUI(false);
+    document.removeEventListener('pointerdown', autoEnableSound);
   }
 
-  // Auto-enable sound on first user interaction (click/touch anywhere)
   function autoEnableSound() {
-    if (soundEnabled) return;
-    enableSound();
-    document.removeEventListener('click', autoEnableSound);
-    document.removeEventListener('touchstart', autoEnableSound);
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    document.removeEventListener('pointerdown', autoEnableSound);
   }
-  document.addEventListener('click', autoEnableSound);
-  document.addEventListener('touchstart', autoEnableSound);
+
+  // Always start as ON when dashboard opens
+  soundEnabled = true;
+  setSoundUI(true);
+  localStorage.setItem('agencySoundEnabled', '1');
+  // Unlock AudioContext on first interaction (browser requirement)
+  document.addEventListener('pointerdown', autoEnableSound);
 
   function playConfirmBeep() {
     try {
@@ -368,7 +374,31 @@
   }
 
   function playSound() {
-    if (!soundEnabled || !audioCtx) return;
+    // Always play on new report — ignores soundEnabled toggle
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    // Real siren audio per agency — local files in /public/
+    const sirenUrls = {
+      bfp: '/siren-bfp.mp3',
+      pnp: '/siren-pnp.mp3',
+      ems: '/siren-ems.mp3',
+    };
+
+    const url = sirenUrls[AGENCY_TYPE];
+    if (url) {
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      audio.play().catch(() => playSynthSound());
+      setTimeout(() => { try { audio.pause(); audio.currentTime = 0; } catch(e){} }, 5000);
+      return;
+    }
+    playSynthSound();
+  }
+
+  function playSynthSound() {
+    // Always play synth fallback too — no soundEnabled check
+    if (!audioCtx) return;
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const ctx = audioCtx;
@@ -410,7 +440,6 @@
             gain.gain.linearRampToValueAtTime(0, start + 0.25);
             osc.start(start); osc.stop(start + 0.25);
           }
-        }c.stop(start + 0.25);
         }
       } else if (AGENCY_TYPE === 'ems') {
         // EMS — Ambulance hi-lo: 660Hz / 440Hz alternating, 0.5s each, 8 cycles
