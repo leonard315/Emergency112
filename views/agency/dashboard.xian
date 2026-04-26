@@ -289,6 +289,7 @@
   const AGENCY_TYPE = '{{ agencyType }}';
   let knownIds = new Set([{{#each alerts}}{{id}},{{/each}}]);
 
+  // ── Sidebar ──────────────────────────────────────────────
   function openSidebar() {
     document.getElementById('sidebar').classList.add('open');
     document.getElementById('sidebarOverlay').classList.add('open');
@@ -299,8 +300,6 @@
     document.getElementById('sidebarOverlay').classList.remove('open');
     document.body.style.overflow = '';
   }
-
-  // Sidebar link interception
   (function() {
     var sb = document.getElementById('sidebar');
     if (!sb) return;
@@ -310,32 +309,38 @@
       var href = link.getAttribute('href');
       if (href === '/logout') return;
       e.preventDefault();
-      sb.classList.remove('open');
-      document.getElementById('sidebarOverlay').classList.remove('open');
-      document.body.style.overflow = '';
+      closeSidebar();
       setTimeout(function() { window.location.href = href; }, 200);
     });
   })();
 
-  // ── Sound system ──────────────────────────────────────────
+  // ── Sound system ─────────────────────────────────────────
   let audioCtx = null;
-  let soundEnabled = false;
+  let soundEnabled = true;
 
   function setSoundUI(on) {
-    document.getElementById('soundBtnText').textContent = on ? 'Sound On' : 'Sound Off';
-    document.getElementById('soundBtn').style.background = on ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.06)';
-    document.getElementById('soundBtn').style.borderColor = on ? 'rgba(34,197,94,.3)' : 'rgba(255,255,255,.15)';
-    document.getElementById('soundBtn').style.color = on ? '#4ade80' : '#94a3b8';
-    document.getElementById('soundIcon').setAttribute('stroke', on ? '#4ade80' : '#94a3b8');
-    document.getElementById('soundOffLines').style.display = on ? 'none' : '';
-    document.getElementById('soundBtn').onclick = on ? disableSound : enableSound;
+    var btn = document.getElementById('soundBtn');
+    var txt = document.getElementById('soundBtnText');
+    var icon = document.getElementById('soundIcon');
+    var lines = document.getElementById('soundOffLines');
+    if (!btn) return;
+    txt.textContent = on ? 'Sound On' : 'Sound Off';
+    btn.style.background = on ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.06)';
+    btn.style.borderColor = on ? 'rgba(34,197,94,.3)' : 'rgba(255,255,255,.15)';
+    btn.style.color = on ? '#4ade80' : '#94a3b8';
+    icon.setAttribute('stroke', on ? '#4ade80' : '#94a3b8');
+    lines.style.display = on ? 'none' : '';
+    btn.onclick = on ? disableSound : enableSound;
+  }
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
   function enableSound() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    initAudio();
     soundEnabled = true;
-    localStorage.setItem('agencySoundEnabled', '1');
     setSoundUI(true);
     playConfirmBeep();
   }
@@ -343,178 +348,149 @@
   function disableSound() {
     soundEnabled = false;
     setSoundUI(false);
-    document.removeEventListener('pointerdown', autoEnableSound);
   }
 
-  function autoEnableSound() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    document.removeEventListener('pointerdown', autoEnableSound);
-  }
+  // Unlock AudioContext on first interaction, keep soundEnabled=true
+  document.addEventListener('pointerdown', function unlockAudio() {
+    initAudio();
+    document.removeEventListener('pointerdown', unlockAudio);
+  });
 
-  // Always start as ON when dashboard opens
-  soundEnabled = true;
+  // Start as ON
   setSoundUI(true);
-  localStorage.setItem('agencySoundEnabled', '1');
-  // Unlock AudioContext on first interaction (browser requirement)
-  document.addEventListener('pointerdown', autoEnableSound);
 
   function playConfirmBeep() {
+    if (!audioCtx) return;
     try {
-      const ctx = audioCtx;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
       osc.type = 'sine'; osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
     } catch(e) {}
   }
 
-  function playSound() {
-    // Always play on new report — ignores soundEnabled toggle
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    // Real siren audio per agency — local files in /public/
-    const sirenUrls = {
-      bfp: '/siren-bfp.mp3',
-      pnp: '/siren-pnp.mp3',
-      ems: '/siren-ems.mp3',
-    };
-
-    const url = sirenUrls[AGENCY_TYPE];
-    if (url) {
-      const audio = new Audio(url);
-      audio.volume = 1.0;
-      audio.play().catch(() => playSynthSound());
-      setTimeout(() => { try { audio.pause(); audio.currentTime = 0; } catch(e){} }, 5000);
-      return;
-    }
-    playSynthSound();
-  }
-
   function playSynthSound() {
-    // Always play synth fallback too — no soundEnabled check
     if (!audioCtx) return;
     try {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const ctx = audioCtx;
-      const now = ctx.currentTime + 0.05;
+      var ctx = audioCtx;
+      var now = ctx.currentTime + 0.05;
 
       if (AGENCY_TYPE === 'bfp') {
-        // BFP — Fire truck wailing siren: slow sweep 600Hz→1200Hz→600Hz, 6 cycles
-        for (let i = 0; i < 6; i++) {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
+        for (var i = 0; i < 5; i++) {
+          var osc = ctx.createOscillator(), gain = ctx.createGain();
           osc.connect(gain); gain.connect(ctx.destination);
           osc.type = 'sawtooth';
-          const start = now + i * 1.2;
-          osc.frequency.setValueAtTime(600, start);
-          osc.frequency.linearRampToValueAtTime(1200, start + 0.6);
-          osc.frequency.linearRampToValueAtTime(600, start + 1.2);
-          gain.gain.setValueAtTime(0, start);
-          gain.gain.linearRampToValueAtTime(0.5, start + 0.05);
-          gain.gain.setValueAtTime(0.5, start + 1.1);
-          gain.gain.linearRampToValueAtTime(0, start + 1.2);
-          osc.start(start); osc.stop(start + 1.2);
+          var s = now + i * 1.0;
+          osc.frequency.setValueAtTime(600, s);
+          osc.frequency.linearRampToValueAtTime(1200, s + 0.5);
+          osc.frequency.linearRampToValueAtTime(600, s + 1.0);
+          gain.gain.setValueAtTime(0, s);
+          gain.gain.linearRampToValueAtTime(0.5, s + 0.05);
+          gain.gain.setValueAtTime(0.5, s + 0.9);
+          gain.gain.linearRampToValueAtTime(0, s + 1.0);
+          osc.start(s); osc.stop(s + 1.0);
         }
-
       } else if (AGENCY_TYPE === 'pnp') {
-        // PNP — Police fast two-tone: rapid 960Hz/770Hz alternating, 3 bursts
-        const tones = [960, 770];
-        for (let burst = 0; burst < 3; burst++) {
-          const burstStart = now + burst * 2.5;
-          for (let i = 0; i < 8; i++) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.type = 'square';
-            osc.frequency.value = tones[i % 2];
-            const start = burstStart + i * 0.25;
-            gain.gain.setValueAtTime(0, start);
-            gain.gain.linearRampToValueAtTime(0.35, start + 0.02);
-            gain.gain.setValueAtTime(0.35, start + 0.22);
-            gain.gain.linearRampToValueAtTime(0, start + 0.25);
-            osc.start(start); osc.stop(start + 0.25);
-          }
+        var tones = [960, 770];
+        for (var i = 0; i < 20; i++) {
+          var osc = ctx.createOscillator(), gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'square';
+          osc.frequency.value = tones[i % 2];
+          var s = now + i * 0.25;
+          gain.gain.setValueAtTime(0, s);
+          gain.gain.linearRampToValueAtTime(0.35, s + 0.02);
+          gain.gain.setValueAtTime(0.35, s + 0.22);
+          gain.gain.linearRampToValueAtTime(0, s + 0.25);
+          osc.start(s); osc.stop(s + 0.25);
         }
       } else if (AGENCY_TYPE === 'ems') {
-        // EMS — Ambulance hi-lo: 660Hz / 440Hz alternating, 0.5s each, 8 cycles
-        for (let i = 0; i < 8; i++) {
-          // Hi tone
-          const oscHi = ctx.createOscillator(); const gainHi = ctx.createGain();
+        for (var i = 0; i < 5; i++) {
+          var oscHi = ctx.createOscillator(), gainHi = ctx.createGain();
           oscHi.connect(gainHi); gainHi.connect(ctx.destination);
           oscHi.type = 'sine'; oscHi.frequency.value = 660;
-          const sHi = now + i * 1.0;
+          var sHi = now + i * 1.0;
           gainHi.gain.setValueAtTime(0, sHi); gainHi.gain.linearRampToValueAtTime(0.55, sHi + 0.03);
           gainHi.gain.setValueAtTime(0.55, sHi + 0.45); gainHi.gain.linearRampToValueAtTime(0, sHi + 0.5);
           oscHi.start(sHi); oscHi.stop(sHi + 0.5);
-          // Lo tone
-          const oscLo = ctx.createOscillator(); const gainLo = ctx.createGain();
+          var oscLo = ctx.createOscillator(), gainLo = ctx.createGain();
           oscLo.connect(gainLo); gainLo.connect(ctx.destination);
           oscLo.type = 'sine'; oscLo.frequency.value = 440;
-          const sLo = now + i * 1.0 + 0.5;
+          var sLo = now + i * 1.0 + 0.5;
           gainLo.gain.setValueAtTime(0, sLo); gainLo.gain.linearRampToValueAtTime(0.55, sLo + 0.03);
           gainLo.gain.setValueAtTime(0.55, sLo + 0.45); gainLo.gain.linearRampToValueAtTime(0, sLo + 0.5);
           oscLo.start(sLo); oscLo.stop(sLo + 0.5);
         }
-
       } else {
-        // Default — generic alert beeps
-        for (let i = 0; i < 8; i++) {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        for (var i = 0; i < 10; i++) {
+          var osc = ctx.createOscillator(), gain = ctx.createGain();
           osc.connect(gain); gain.connect(ctx.destination);
           osc.type = 'sine'; osc.frequency.value = 880;
-          const s = now + i * 0.3;
+          var s = now + i * 0.3;
           gain.gain.setValueAtTime(0, s); gain.gain.linearRampToValueAtTime(0.5, s + 0.02);
           gain.gain.exponentialRampToValueAtTime(0.001, s + 0.25);
           osc.start(s); osc.stop(s + 0.3);
         }
       }
-    } catch(e) { console.warn('Sound error:', e); }
+    } catch(e) { console.warn('Synth error:', e); }
   }
 
+  function playSound() {
+    // Always plays on new report regardless of soundEnabled toggle
+    initAudio();
+    var sirenUrls = { bfp: '/siren-bfp.mp3', pnp: '/siren-pnp.mp3', ems: '/siren-ems.mp3' };
+    var url = sirenUrls[AGENCY_TYPE];
+    if (url) {
+      var audio = new Audio(url);
+      audio.volume = 1.0;
+      audio.play().catch(function() { playSynthSound(); });
+      setTimeout(function() { try { audio.pause(); audio.currentTime = 0; } catch(e){} }, 5000);
+    } else {
+      playSynthSound();
+    }
+  }
+
+  // ── Banner ───────────────────────────────────────────────
   function showBanner(alert) {
     document.getElementById('bannerTitle').textContent = '🚨 ' + alert.label;
     document.getElementById('bannerLoc').textContent = '📍 ' + (alert.location || 'Unknown');
-    const b = document.getElementById('newAlertBanner');
+    var b = document.getElementById('newAlertBanner');
     b.style.display = 'block';
-    setTimeout(() => { b.style.display = 'none'; }, 8000);
+    setTimeout(function() { b.style.display = 'none'; }, 8000);
   }
 
+  // ── Polling ──────────────────────────────────────────────
   if (Notification.permission === 'default') Notification.requestPermission();
 
   async function pollAlerts() {
     try {
-      const data = await fetch('/api/agency/' + AGENCY_TYPE + '/alerts').then(r => r.json());
-      const newOnes = data.filter(a => !knownIds.has(a.id) && a.status === 'active');
+      var data = await fetch('/api/agency/' + AGENCY_TYPE + '/alerts').then(function(r) { return r.json(); });
+      var newOnes = data.filter(function(a) { return !knownIds.has(a.id) && a.status === 'active'; });
       if (newOnes.length > 0) {
         playSound();
-        newOnes.forEach(a => {
+        newOnes.forEach(function(a) {
           showBanner(a);
           knownIds.add(a.id);
           if (Notification.permission === 'granted') {
             new Notification('🚨 ' + a.label, { body: '📍 ' + a.location, icon: '/icons/icon-192.png', tag: 'alert-' + a.id });
           }
         });
-        let flash = true; const orig = document.title;
-        const iv = setInterval(() => { document.title = flash ? '🚨 NEW ALERT — ' + orig : orig; flash = !flash; }, 600);
-        setTimeout(() => { clearInterval(iv); document.title = orig; }, 8000);
-        setTimeout(() => location.reload(), 2000);
+        var flash = true, orig = document.title;
+        var iv = setInterval(function() { document.title = flash ? '🚨 NEW ALERT — ' + orig : orig; flash = !flash; }, 600);
+        setTimeout(function() { clearInterval(iv); document.title = orig; }, 8000);
+        setTimeout(function() { location.reload(); }, 2000);
       }
-      const active     = data.filter(a => a.status === 'active').length;
-      const responding = data.filter(a => a.status === 'responding').length;
-      const resolved   = data.filter(a => a.status === 'resolved').length;
-      document.getElementById('statActive').textContent     = active;
-      document.getElementById('statResponding').textContent = responding;
-      document.getElementById('statResolved').textContent   = resolved;
+      document.getElementById('statActive').textContent     = data.filter(function(a){return a.status==='active';}).length;
+      document.getElementById('statResponding').textContent = data.filter(function(a){return a.status==='responding';}).length;
+      document.getElementById('statResolved').textContent   = data.filter(function(a){return a.status==='resolved';}).length;
       document.getElementById('alertCount').textContent     = data.length;
-      const badge = document.getElementById('headerBadge');
+      var active = data.filter(function(a){return a.status==='active';}).length;
       document.getElementById('headerActiveNum').textContent = active;
-      badge.style.display = active > 0 ? 'flex' : 'none';
+      document.getElementById('headerBadge').style.display = active > 0 ? 'flex' : 'none';
       var nb = document.getElementById('sidebarActiveBadge');
       if (nb) { nb.textContent = active; nb.style.display = active > 0 ? 'inline' : 'none'; }
       document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
@@ -524,6 +500,7 @@
   setInterval(pollAlerts, 8000);
   if (window.innerWidth < 1024) document.body.classList.add('has-bottom-nav');
 </script>
+
 
 </body>
 </html>
