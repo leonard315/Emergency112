@@ -321,36 +321,38 @@
   let audioCtx = null;
   let soundEnabled = false;
 
+  function setSoundUI(on) {
+    document.getElementById('soundBtnText').textContent = on ? 'Sound On' : 'Sound Off';
+    document.getElementById('soundBtn').style.background = on ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.06)';
+    document.getElementById('soundBtn').style.borderColor = on ? 'rgba(34,197,94,.3)' : 'rgba(255,255,255,.15)';
+    document.getElementById('soundBtn').style.color = on ? '#4ade80' : '#94a3b8';
+    document.getElementById('soundIcon').setAttribute('stroke', on ? '#4ade80' : '#94a3b8');
+    document.getElementById('soundOffLines').style.display = on ? 'none' : '';
+    document.getElementById('soundBtn').onclick = on ? disableSound : enableSound;
+  }
+
   function enableSound() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     soundEnabled = true;
-
-    // Update button to show sound is ON
-    document.getElementById('soundBtnText').textContent = 'Sound On';
-    document.getElementById('soundBtn').style.background = 'rgba(34,197,94,.12)';
-    document.getElementById('soundBtn').style.borderColor = 'rgba(34,197,94,.3)';
-    document.getElementById('soundBtn').style.color = '#4ade80';
-    document.getElementById('soundIcon').setAttribute('stroke', '#4ade80');
-    document.getElementById('soundOffLines').style.display = 'none';
-    document.getElementById('soundBtn').onclick = disableSound;
-
-    // Play a short confirmation beep
+    setSoundUI(true);
     playConfirmBeep();
   }
 
   function disableSound() {
     soundEnabled = false;
-    document.getElementById('soundBtnText').textContent = 'Sound Off';
-    document.getElementById('soundBtn').style.background = 'rgba(255,255,255,.06)';
-    document.getElementById('soundBtn').style.borderColor = 'rgba(255,255,255,.15)';
-    document.getElementById('soundBtn').style.color = '#94a3b8';
-    document.getElementById('soundIcon').setAttribute('stroke', '#94a3b8');
-    document.getElementById('soundOffLines').style.display = '';
-    document.getElementById('soundBtn').onclick = enableSound;
+    setSoundUI(false);
   }
+
+  // Auto-enable sound on first user interaction (click/touch anywhere)
+  function autoEnableSound() {
+    if (soundEnabled) return;
+    enableSound();
+    document.removeEventListener('click', autoEnableSound);
+    document.removeEventListener('touchstart', autoEnableSound);
+  }
+  document.addEventListener('click', autoEnableSound);
+  document.addEventListener('touchstart', autoEnableSound);
 
   function playConfirmBeep() {
     try {
@@ -373,8 +375,8 @@
       const now = ctx.currentTime + 0.05;
 
       if (AGENCY_TYPE === 'bfp') {
-        // BFP — Fire truck wailing siren: slow sweep 600Hz→1200Hz→600Hz, 3 cycles
-        for (let i = 0; i < 3; i++) {
+        // BFP — Fire truck wailing siren: slow sweep 600Hz→1200Hz→600Hz, 6 cycles
+        for (let i = 0; i < 6; i++) {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.connect(gain); gain.connect(ctx.destination);
@@ -391,39 +393,28 @@
         }
 
       } else if (AGENCY_TYPE === 'pnp') {
-        // PNP — Police fast two-tone: rapid 960Hz/770Hz alternating (UK-style)
+        // PNP — Police fast two-tone: rapid 960Hz/770Hz alternating, 3 bursts
         const tones = [960, 770];
-        for (let i = 0; i < 8; i++) {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'square';
-          osc.frequency.value = tones[i % 2];
-          const start = now + i * 0.25;
-          gain.gain.setValueAtTime(0, start);
-          gain.gain.linearRampToValueAtTime(0.35, start + 0.02);
-          gain.gain.setValueAtTime(0.35, start + 0.22);
-          gain.gain.linearRampToValueAtTime(0, start + 0.25);
-          osc.start(start); osc.stop(start + 0.25);
-        }
-        // Second burst after 2.5s
-        setTimeout(() => {
-          if (!soundEnabled || !audioCtx) return;
-          const ctx2 = audioCtx; const n2 = ctx2.currentTime + 0.05;
+        for (let burst = 0; burst < 3; burst++) {
+          const burstStart = now + burst * 2.5;
           for (let i = 0; i < 8; i++) {
-            const osc = ctx2.createOscillator(); const gain = ctx2.createGain();
-            osc.connect(gain); gain.connect(ctx2.destination);
-            osc.type = 'square'; osc.frequency.value = tones[i % 2];
-            const s = n2 + i * 0.25;
-            gain.gain.setValueAtTime(0, s); gain.gain.linearRampToValueAtTime(0.35, s + 0.02);
-            gain.gain.setValueAtTime(0.35, s + 0.22); gain.gain.linearRampToValueAtTime(0, s + 0.25);
-            osc.start(s); osc.stop(s + 0.25);
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.value = tones[i % 2];
+            const start = burstStart + i * 0.25;
+            gain.gain.setValueAtTime(0, start);
+            gain.gain.linearRampToValueAtTime(0.35, start + 0.02);
+            gain.gain.setValueAtTime(0.35, start + 0.22);
+            gain.gain.linearRampToValueAtTime(0, start + 0.25);
+            osc.start(start); osc.stop(start + 0.25);
           }
-        }, 2500);
-
+        }c.stop(start + 0.25);
+        }
       } else if (AGENCY_TYPE === 'ems') {
-        // EMS — Ambulance hi-lo: 660Hz / 440Hz alternating, 0.5s each, 4 cycles
-        for (let i = 0; i < 4; i++) {
+        // EMS — Ambulance hi-lo: 660Hz / 440Hz alternating, 0.5s each, 8 cycles
+        for (let i = 0; i < 8; i++) {
           // Hi tone
           const oscHi = ctx.createOscillator(); const gainHi = ctx.createGain();
           oscHi.connect(gainHi); gainHi.connect(ctx.destination);
@@ -444,7 +435,7 @@
 
       } else {
         // Default — generic alert beeps
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 8; i++) {
           const osc = ctx.createOscillator(); const gain = ctx.createGain();
           osc.connect(gain); gain.connect(ctx.destination);
           osc.type = 'sine'; osc.frequency.value = 880;
